@@ -1,0 +1,6 @@
+{% load staticfiles %}
+%link{:href => "{% static 'search_ui/style.css' %}", :rel => "stylesheet", :type => "text/css"}
+%section.webdesigntuts-workshop
+  %form{:action => "/search/", :method => "get"}
+    %input{:name => "q", :placeholder => "Search...", :type => "search"}
+      %button Search
