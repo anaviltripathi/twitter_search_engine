@@ -1,6 +1,28 @@
-{% load staticfiles %}
-%link{:href => "{% static 'search_ui/style.css' %}", :rel => "stylesheet", :type => "text/css"}
+- load staticfiles
+%link{:href => "{% static 'search_ui/css/style.css' %}", :rel => "stylesheet", :type => "text/css"}
+
+%head
+    %h1 Search Twitter
+    %img{'id': "myImage", onclick: "change_image()", src: "{% static 'search_ui/images/pic1.png'%}"}
+
+
 %section.webdesigntuts-workshop
-  %form{:action => "/search/", :method => "get"}
-    %input{:name => "q", :placeholder => "Search...", :type => "search"}
-      %button Search
+    %form{:action => "", :method => "post", :id => 'post-form'}
+        {% csrf_token %}
+        {{form}}
+        %input{:type => 'submit', value: 'Submit', name: 'q', placeholder: 'Search...', :id => 'search_submit'}
+
+
+    %p There were ={num_results} found
+    %p results shown
+        - for i in var_list
+            %td loda loda
+            - if doc.id
+                %td id is {{doc.id}}
+            - if doc.text
+                %td text is {{doc.text}}
+
+
+%script{'type': 'text/javascript', 'src': "{% static 'search_ui/js/jquery.js' %}"}
+%script{'type': 'text/javascript', 'src': "{% static 'search_ui/js/main.js' %}"}
+
