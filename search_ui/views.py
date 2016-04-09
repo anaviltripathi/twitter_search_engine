@@ -38,7 +38,7 @@ def search_form(request):
     else:
         print("post method shayad")
         form = SearchForm()
-    return render(request, 'search_ui/search_form.haml', {'form': form})
+    return render(request, 'search_ui/search_display.html', {'form': form})
 
 
 
@@ -54,3 +54,10 @@ def search(request):
 #         {'error': error})
 
 # Create your views here.
+
+def display_tweet(request):
+    print("request is coming to display tweet")
+    #json_data=json.loads(request.body)
+    # print(json_data)
+    # print(json_data['x'])
+    return render(request, 'search1/display.html')
