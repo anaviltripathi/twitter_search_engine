@@ -1,7 +1,7 @@
 <script src='http://code.jquery.com/jquery-1.11.0.min.js'></script>
-<script src='/static/search_ui/script/main.js'></script>
+<script src='/static/search1/script/main.js'></script>
 <html class="google-js" lang="en">
-   <script type="text/javascript" src="/static/search_ui/script/googlesearch.js">window["_gaUserPrefs"] = { ioo : function() { return true; } }</script>
+   <script type="text/javascript" src="/static/search1/script/googlesearch.js">window["_gaUserPrefs"] = { ioo : function() { return true; } }</script>
    <head>
       <meta charset="utf-8">
       <meta content="initial-scale=1, minimum-scale=1, width=device-width" name="viewport">
@@ -20,52 +20,55 @@
                <!--<input data-g-action="Search Text Entry" data-g-event="Search: Products" data-g-label="Site Search: Sample Search" id="search_term" name="search_term" placeholder="Enter a search phrase" type="text"><br>-->
                <!--<input class="maia-button" data-g-action="Search Button" data-g-event="Search: Products" data-g-label="Site Search: Sample Search" id="search_submit" type="submit" value="Search">-->
             <!--</form>-->
+             <div class="result">
             <form role="form" action="" method="post" id="post-form">
                {% csrf_token %}
                 {{form}}
                 <input class="maia-button" data-g-action="Search Button" data-g-event="Search: Products" data-g-label="Site Search: Sample Search" id="search_submit" type="submit" value="Search">
             </form>
+             </div>
+
             <div id="search_results">
                 <div id="all_result"></div>
-                <div id="search_count"></div>
+                <b><div class="result" id="search_count"></div></b>
                <div class="result" id="search0">
-                  <a class="third_page" href="" target="user0"></a><a href="http://rayanthony.io/extensions/xframeassassin/index.html" target="_blank" class="result_url">rayanthony.io/extensions/xframeassassin/index.html</a>
-                  <p class="snippet" id="search0_snippet">
-                  </p>
-               </div>
-               <div class="result" id="search1">
-                  <a class="third_page" href="http://rayanthony.io/extensions/index.html" target="user1"></a><a href="http://rayanthony.io/extensions/index.html" target="_blank" class="result_url">rayanthony.io/extensions/index.html</a>
+                  <a class="third_page" href="" target="user0"></a><a href="http://rayanthony.io/extensions/xframeassassin/index.html" target="link_user0" class="result_url"></a>
                   <p class="snippet" id="search1_snippet">
                   </p>
                </div>
-               <div class="result" id="search2">
-                  <a class="third_page" href="http://rayanthony.io/" target="user2"></a><a href="http://rayanthony.io/" target="_blank" class="result_url">rayanthony.io/</a>
+               <div class="result" id="search1">
+                  <a class="third_page" href="http://rayanthony.io/extensions/index.html" target="user1"></a><a href="http://rayanthony.io/extensions/index.html" target="link_user1" class="result_url"></a>
                   <p class="snippet" id="search2_snippet">
                   </p>
                </div>
-                <div class="result" id="search3">
-                  <a class="third_page" href="http://rayanthony.io/" target="user3"></a><a href="http://rayanthony.io/" target="_blank" class="result_url">rayanthony.io/</a>
+               <div class="result" id="search2">
+                  <a class="third_page" href="http://rayanthony.io/" target="user2"></a><a href="http://rayanthony.io/" target="link_user2" class="result_url"></a>
                   <p class="snippet" id="search3_snippet">
                   </p>
                </div>
-                <div class="result" id="search4">
-                  <a class="third_page" href="http://rayanthony.io/" target="user4"></a><a href="http://rayanthony.io/" target="_blank" class="result_url">rayanthony.io/</a>
+                <div class="result" id="search3">
+                  <a class="third_page" href="http://rayanthony.io/" target="user3"></a><a href="http://rayanthony.io/" target="link_user3" class="result_url"></a>
                   <p class="snippet" id="search4_snippet">
                   </p>
                </div>
-                <div class="result" id="search5">
-                  <a class="third_page" href="http://rayanthony.io/" target="user5"></a><a href="http://rayanthony.io/" target="_blank" class="result_url">rayanthony.io/</a>
+                <div class="result" id="search4">
+                  <a class="third_page" href="http://rayanthony.io/" target="user4"></a><a href="http://rayanthony.io/" target="link_user4" class="result_url"></a>
                   <p class="snippet" id="search5_snippet">
                   </p>
                </div>
-                <div class="result" id="search6">
-                  <a class="third_page" href="http://rayanthony.io/" target="user6"></a><a href="http://rayanthony.io/" target="_blank" class="result_url">rayanthony.io/</a>
+                <div class="result" id="search5">
+                  <a class="third_page" href="http://rayanthony.io/" target="user5"></a><a href="http://rayanthony.io/" target="link_user5" class="result_url"></a>
                   <p class="snippet" id="search6_snippet">
                   </p>
                </div>
-                <div class="result" id="search7">
-                  <a class="third_page" href="http://rayanthony.io/" target="user7"></a><a href="http://rayanthony.io/" target="_blank" class="result_url">rayanthony.io/</a>
+                <div class="result" id="search6">
+                  <a class="third_page" href="http://rayanthony.io/" target="user6"></a><a href="http://rayanthony.io/" target="link_user6" class="result_url"></a>
                   <p class="snippet" id="search7_snippet">
+                  </p>
+               </div>
+                <div class="result" id="search7">
+                  <a class="third_page" href="http://rayanthony.io/" target="user7"></a><a href="http://rayanthony.io/" target="link_user7" class="result_url"></a>
+                  <p class="snippet" id="search8_snippet">
                   </p>
                </div>
             </div>
