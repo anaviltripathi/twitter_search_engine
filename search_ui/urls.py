@@ -20,4 +20,6 @@ from . import views
 urlpatterns = [
     url(r'^search_ui/$', views.search_form, name='search_form'),
     url(r'^search/$', views.search),
+    url(r'^bar/$', views.BarView),
+
 ]

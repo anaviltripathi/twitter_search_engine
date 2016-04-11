@@ -33,8 +33,34 @@ $(function() {
             //image.src = "static/search_ui/images/pic2.png"
         }
     }
-    
-    
+    $('#container').highcharts({
+        chart: {
+        type: 'bar'
+        },
+        title: {
+        text: 'Monthly Sales'
+        },
+        xAxis: {
+        categories: ['Jan', 'Feb', 'Mar','Apr']
+        },
+        yAxis: {
+        title: {
+        text: 'numbers'
+        }
+        },
+        series: [{
+        name: 'John',
+        data: [1, 0, 4]
+        }, {
+        name: 'King',
+        data: [5, 7, 3]
+        }]
+    });
+
+    $.getJSON("{% url 'bar' %}", function(data) {
+            $('#container').highcharts(data);
+        });
+
     // AJAX for posting
     function create_post() {
         console.log("create post is working!") // sanity check

@@ -4,6 +4,11 @@
 %head
     %h1 Search Twitter
     %img{'id': "myImage", onclick: "change_image()", src: "{% static 'search_ui/images/pic1.png'%}"}
+    %script{'type': 'text/javascript', 'src': "{% static 'search_ui/js/jquery.js' %}"}
+    %script{'type': 'text/javascript', 'src': "{% static 'search_ui/js/highcharts/highcharts.js' %}"}
+    %script{'type': 'text/javascript', 'src': "{% static 'search_ui/js/main.js' %}"}
+
+
 
 
 %section.webdesigntuts-workshop
@@ -14,6 +19,18 @@
 
 
     %p There were ={num_results} found
+    %table
+        %tbody
+            %tr
+                %td ID
+                %td Tweet
+            %tr{:id => 'tr3'}
+                %td 1
+                %td 2
+            %tr{:id => 'tr4'}
+                %td 1
+                %td 2
+    %div{:class => 'message'}
     %p results shown
         - for i in var_list
             %td loda loda
@@ -22,7 +39,5 @@
             - if doc.text
                 %td text is {{doc.text}}
 
-
-%script{'type': 'text/javascript', 'src': "{% static 'search_ui/js/jquery.js' %}"}
-%script{'type': 'text/javascript', 'src': "{% static 'search_ui/js/main.js' %}"}
+    %div{:id => 'container',:style => "height: 300px"}
 

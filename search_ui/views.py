@@ -1,9 +1,11 @@
-import io, pycurl, json, pysolr
+import io, pycurl, json, pysolr, random
+from collections import Counter
 
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 from .forms import SearchForm
+from highcharts.views import HighChartsBarView
 
 def search_form(request):
     if request.method == 'POST':
@@ -13,7 +15,7 @@ def search_form(request):
         print(request.POST.get('search_field'))
         query = request.POST.get('search_field')
         template_set = True
-        var_list = range(10)
+        var_list = (1,2,3,4,10)
         '''
         response = io.BytesIO()
         c=pycurl.Curl()
@@ -29,22 +31,42 @@ def search_form(request):
         results = solr.search(query, **{'wt':'json'})
         #print(results)
         result = results.__dict__
+        #print(result['docs'])
+
+        def create_trends(results, trend_query_parameter):
+            #print(results[0])
+            for doc in results:
+
+                print("YOOUUOHOOOO")
+                if trend_query_parameter in doc:
+                    #print(json.dumps(doc,indent=4))
+                    print(doc[trend_query_parameter])
+
+                if 'coordinates' in doc:
+                    print("Coordinate: ",doc['coordinates'])
+
+            return Counter((doc[trend_query_parameter][0] for doc in results if trend_query_parameter in doc))
+
+        #result['location_trends'] = create_trends(result['docs'], 'user.location')
+        print(create_trends(result['docs'], 'user.time_zone'))
         num_results = len(results)
+        print(num_results)
+        #result['chart_data'] = BarView()
         #return render(request, 'search_ui/search_form.haml', {'query': query, 'result': result, 'num_results': num_results})
         return HttpResponse(json.dumps({'result' : result}))
         #return render(request, results)
         #else:
         #    print("Form invalid")
     else:
-        print("post method shayad")
+        print("post method shayad ")
+        print(request)
         form = SearchForm()
     return render(request, 'search_ui/search_form.haml', {'form': form})
 
 
-
 def search(request):
     error = False
-#
+
 #     if 'q' in request.GET:
 #         print("YIPEEEE")
 #
@@ -54,3 +76,16 @@ def search(request):
 #         {'error': error})
 
 # Create your views here.
+
+class BarView(HighChartsBarView):
+    categories = ['Orange', 'Bananas', 'Apples']
+
+    @property
+    def series(self):
+        result = []
+        for name in ('Joe', 'Jack', 'William', 'Averell'):
+            data = []
+            for x in range(len(self.categories)):
+                data.append(random.randint(0, 10))
+            result.append({'name': name, "data": data})
+        return result
