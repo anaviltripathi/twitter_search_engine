@@ -25,7 +25,7 @@ def search_form(request):
         result = response.getvalue().decode("UTF-8")
         '''
         #Using solr
-        solr = pysolr.Solr('http://localhost:8983/solr/gettingstarted_shard1_replica1/', timeout=10)
+        solr = pysolr.Solr('http://localhost:8983/solr/gettingstarted/', timeout=10)
         results = solr.search(query, **{'wt':'json'})
         #print(results)
         result = results.__dict__
@@ -71,4 +71,4 @@ def display_tweet(request):
             v=str(v)
             for c in bad_chars: v = v.replace(c, "")
             new_tweet[newkey]=v
-        return render(request, 'search1/display.haml', {'result':new_tweet})
+        return render(request, 'search_ui/display.haml', {'result':new_tweet})

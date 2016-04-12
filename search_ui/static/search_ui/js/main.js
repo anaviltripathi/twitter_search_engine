@@ -1,37 +1,76 @@
 $(function() {
     $('#post-form').submit(function(event){
         event.preventDefault();
-        console.log("form submitted!")  // sanity check
-//        var $form = $(this), term = $form.find("input[name='search_field']").val(), url = $form.attr("action");
-//        var posting = $.post( url, {search_field: term} );
-//
-//        posting.done(function( data ){
-//            alert( data.result);
-//            $('#post-form').html(data.result)
-//            var content = $( data ).find("*");
-//            $( "#result").empty().append( content);
-//        });
-
+        console.log("form submitted!")
         var c = true
         $.post('/search_ui/', $(this).serialize(), function(data){
             var j_obj = JSON.parse(data)
             filter_and_show(j_obj.result)
-            //$('.message').html(JSON.stringify(j_obj.result.docs))
             //return result
         });
-        //create_post();
     });
+
 
     function filter_and_show(result){
 
-        $("#all_result").html(JSON.stringify(result))
-        $('#search_count').html("total results found are " + JSON.stringify(result.docs.length))
-        for (var i=0; i<result.docs.length;i++) {
+        //$("#all_result").html(JSON.stringify(result))
+        $('#search_count').html("Total results found are " + JSON.stringify(result.docs.length))
+        link_count=result.docs.length/7 -1;
+        clear_previous_search();
+        create_links(link_count, result)
+        for (var i=0; i<result.docs.length && i<8;i++) {
             $("a[target=user"+i+"]").html("Tweeted by:"+result.docs[i]["user.name"])
+            $("a[target=user"+i+"]").data("tweet_id",{id:result.docs[i].id})
+            $("a[target=link_user"+i+"]").html("tweet_link: display_tweet/"+result.docs[i].id)
+            $("a[target=link_user"+i+"]").attr("href","display_tweet/?q="+result.docs[i].id)
             $("#search"+i+"_snippet").html(JSON.stringify(result.docs[i].text))
         }
 
     }
+
+    function clear_previous_search(){
+        var search=8;
+        for (var i=0; i<search;i++) {
+            $("a[target=user"+i+"]").html("");
+            $("a[target=user"+i+"]").data("");
+            $("a[target=link_user"+i+"]").html("");
+            $("a[target=link_user"+i+"]").attr("");
+            $("#search"+i+"_snippet").html("");
+        }
+    }
+
+    function clear_previous_link(){
+        $("#link_generation").html("");
+    }
+    function create_links(link_count, result){
+        clear_previous_link();
+        if (link_count==0) return;
+        console.log("i am trying to create links");
+        $('#link_generation').append("<span><b>Next search: </b></span>");
+        for(var i=0; i<link_count;i++){
+            var mydiv = document.getElementById("link_generation");
+            var aTag = document.createElement('a');
+            aTag.id="link_data"+i;
+            aTag.setAttribute('href',"http://google.com");
+            aTag.setAttribute("class", "next_search");
+            aTag.innerHTML = (i+1) + " ";
+            mydiv.appendChild(aTag);
+        }
+
+
+        for(var i=0; i<link_count;i++){
+            $("link_data"+i).data('result',{res:result})
+        }
+    }
+
+    $("#search_form_id").bind("mouseover",function(){
+            $(".search_form").css("background-color","blue");
+    });
+
+    $("#search_form_id").bind("mouseout",function(){
+            $(".search_form").css("background-color","yellow");
+    });
+
 
     function change_image() {
         console.log("Working")
@@ -45,34 +84,14 @@ $(function() {
             //image.src = "static/search_ui/images/pic2.png"
         }
     }
-    
-    
+
+
     // AJAX for posting
     function create_post() {
         console.log("create post is working!") // sanity check
         $("post-form").load({
 
         })
-//        $.ajax({
-//            url : "/search_ui/", // the endpoint
-//            type : "POST", // http method
-//            data : { the_post : $('#post-text').val() }, // data sent with the post request
-//
-//            // handle a successful response
-//            success : function(json) {
-//                $('#post-text').val(''); // remove the value from the input
-//                console.log(json); // log the returned json to the console
-//                $("#talk").prepend("<li><strong>"+json.text+"</strong> - <em> "+json.author+"</em> - <span> "+json.created+"</span></li>")
-//                console.log("success"); // another sanity check
-//            },
-//
-//            // handle a non-successful response
-//            error : function(xhr,errmsg,err) {
-//                $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: "+errmsg+
-//                    " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
-//                console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-//            }
-//        });
     };
 
     // This function gets cookie with a given name
@@ -126,33 +145,19 @@ $(function() {
         }
     });
 
-
     $('.third_page').click(function() {
-    console.log("third page started working form submitted!")
-
-    $.ajax({
-        type: "POST",
-        contentType: "application/json",
-        url : "display_tweet/",
-        data : JSON.stringify({ x: "1", y: "2" , z: "3" }),
-        dataType: "json",
-        complete: function() {
-          //called when complete
-          console.log('process complete');
-          window.location.replace('display_tweet/')
-          },
-
-        success: function(data) {
-          console.log(data);
-          console.log('process sucess');
-         },
-
-        error: function() {
-          console.log('process error');
-        },
+            var tweet_id=$(this).data('tweet_id');
+            console.log(tweet_id);
+            var url="display_tweet/?q="+tweet_id['id'];
+           $("a[target='" + $(this).attr("target")+"']").attr("href",url);
     });
 
+
 });
+
+
+
+
 
 
 
