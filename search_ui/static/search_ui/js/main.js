@@ -20,7 +20,18 @@ $(function() {
         });
         //create_post();
     });
-    
+
+    function filter_and_show(result){
+
+        $("#all_result").html(JSON.stringify(result))
+        $('#search_count').html("total results found are " + JSON.stringify(result.docs.length))
+        for (var i=0; i<result.docs.length;i++) {
+            $("a[target=user"+i+"]").html("Tweeted by:"+result.docs[i]["user.name"])
+            $("#search"+i+"_snippet").html(JSON.stringify(result.docs[i].text))
+        }
+
+    }
+
     function change_image() {
         console.log("Working")
         var image = document.getElementById('myImage');
@@ -138,6 +149,32 @@ $(function() {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
             }
         }
+    });
+
+
+    $('.third_page').click(function() {
+    console.log("third page started working form submitted!")
+
+    $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        url : "display_tweet/",
+        data : JSON.stringify({ x: "1", y: "2" , z: "3" }),
+        dataType: "json",
+        complete: function() {
+          //called when complete
+          console.log('process complete');
+          window.location.replace('display_tweet/')
+          },
+
+        success: function(data) {
+          console.log(data);
+          console.log('process sucess');
+         },
+
+        error: function() {
+          console.log('process error');
+        },
     });
 
 });
