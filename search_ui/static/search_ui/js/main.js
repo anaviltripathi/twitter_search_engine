@@ -15,7 +15,8 @@ $(function() {
         var c = true
         $.post('/search_ui/', $(this).serialize(), function(data){
             var j_obj = JSON.parse(data)
-            $('.message').html(JSON.stringify(j_obj.result.docs))
+            filter_and_show(j_obj.result)
+            //$('.message').html(JSON.stringify(j_obj.result.docs))
             //return result
         });
         //create_post();
