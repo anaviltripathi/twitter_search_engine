@@ -19,7 +19,7 @@ from . import views
 
 urlpatterns = [
     url(r'^search_ui/$', views.search_form, name='search_form'),
-    url(r'^display_tweet/$', views.display_tweet, name='search_form'),
+    url(r'^search_ui/display_tweet/$', views.display_tweet, name='search_form'),
     url(r'^search/$', views.search),
     url(r'^bar/$', views.BarView.as_view),
 ]
