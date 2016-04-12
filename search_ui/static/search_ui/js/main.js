@@ -19,11 +19,12 @@ $(function() {
         clear_previous_search();
         create_links(link_count, result)
         for (var i=0; i<result.docs.length && i<8;i++) {
-            $("a[target=user"+i+"]").html("Tweeted by:"+result.docs[i]["user.name"])
-            $("a[target=user"+i+"]").data("tweet_id",{id:result.docs[i].id})
-            $("a[target=link_user"+i+"]").html("tweet_link: display_tweet/"+result.docs[i].id)
-            $("a[target=link_user"+i+"]").attr("href","display_tweet/?q="+result.docs[i].id)
-            $("#search"+i+"_snippet").html(JSON.stringify(result.docs[i].text))
+            $("a[target=user"+i+"]").html("Tweeted by:"+result.docs[i]["user.name"]);
+            $("a[target=user"+i+"]").data("tweet_id",{id:result.docs[i].id});
+            $("a[target=user"+i+"]").attr("href","display_tweet/?q="+result.docs[i].id);
+            $("a[target=link_user"+i+"]").html("tweet_link: display_tweet/"+result.docs[i].id);
+            $("a[target=link_user"+i+"]").attr("href","display_tweet/?q="+result.docs[i].id);
+            $("#search"+i+"_snippet").html(JSON.stringify(result.docs[i].text));
         }
 
     }
