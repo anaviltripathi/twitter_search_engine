@@ -4,64 +4,43 @@ from collections import Counter
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
+
+from search_ui.text_preprocessing import tokenize_all_tweets
 from .forms import SearchForm
 from highcharts.views import HighChartsBarView
 
+#import text_preprocessing
+
+
+
 def search_form(request):
     if request.method == 'POST':
-        form = SearchForm(request.POST)
+        #form = SearchForm(request.POST)
         #if form.is_valid():
         print("YO babes working")
+        print(request)
         print(request.POST.get('search_field'))
         query = request.POST.get('search_field')
         template_set = True
         var_list = (1,2,3,4,10)
-        '''
-        response = io.BytesIO()
-        c=pycurl.Curl()
-        q="+".join(q.split())
-        c.setopt(c.URL, 'http://localhost:8983/solr/gettingstarted/select?q='+q+'&wt=json&indent=true')
-        c.setopt(c.WRITEDATA, response)
-        c.perform()
-        c.close()
-        result = response.getvalue().decode("UTF-8")
-        '''
         #Using solr
         solr = pysolr.Solr('http://localhost:8983/solr/gettingstarted/', timeout=10)
-        results = solr.search(query, **{'wt':'json'})
-        #print(results)
+        results = solr.search(query, **{'wt':'json','rows':10000})
         result = results.__dict__
-        #print(result['docs'])
+        tweets = [tweet_data['text'][0] for tweet_data in result['docs']]
+        result['recommendations'] = tokenize_all_tweets(tweets)
 
         def create_trends(results, trend_query_parameter):
-            #print(results[0])
-            for doc in results:
-
-                print("YOOUUOHOOOO")
-                if trend_query_parameter in doc:
-                    #print(json.dumps(doc,indent=4))
-                    print(doc[trend_query_parameter])
-
-                if 'coordinates' in doc:
-                    print("Coordinate: ",doc['coordinates'])
-
             return Counter((doc[trend_query_parameter][0] for doc in results if trend_query_parameter in doc))
 
-        #result['location_trends'] = create_trends(result['docs'], 'user.location')
-        print(create_trends(result['docs'], 'user.time_zone'))
+        result['location_trends'] = create_trends(result['docs'], 'user.time_zone')
         num_results = len(results)
-        print(num_results)
-        #result['chart_data'] = BarView()
-        #return render(request, 'search_ui/search_form.haml', {'query': query, 'result': result, 'num_results': num_results})
         return HttpResponse(json.dumps({'result' : result}))
-        #return render(request, results)
-        #else:
-        #    print("Form invalid")
     else:
         print("post method shayad ")
         print(request)
         form = SearchForm()
-    return render(request, 'search_ui/search_display.html', {'form': form})
+    return render(request, 'search_ui/search_display.haml', {'form': form})
 
 
 def search(request):

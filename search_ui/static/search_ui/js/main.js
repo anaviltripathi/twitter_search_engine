@@ -2,17 +2,16 @@ $(function() {
     $('#post-form').submit(function(event){
         event.preventDefault();
         console.log("form submitted!")
-        var c = true
         $.post('/search_ui/', $(this).serialize(), function(data){
             var j_obj = JSON.parse(data)
             filter_and_show(j_obj.result)
+
             //return result
         });
     });
 
 
     function filter_and_show(result){
-
         //$("#all_result").html(JSON.stringify(result))
         $('#search_count').html("Total results found are " + JSON.stringify(result.docs.length))
         link_count=result.docs.length/7 -1;
@@ -25,7 +24,70 @@ $(function() {
             $("a[target=link_user"+i+"]").html("tweet_link: display_tweet/"+result.docs[i].id);
             $("a[target=link_user"+i+"]").attr("href","display_tweet/?q="+result.docs[i].id);
             $("#search"+i+"_snippet").html(JSON.stringify(result.docs[i].text));
+
         }
+        show_location_chart(result.location_trends);
+        show_recommendations(result.recommendations);
+
+
+    }
+
+    window.DoPost = function(content_id){
+         console.log("Coming here");
+         var reco=$(content_id).text()
+         $.post("", { search_field: reco} );
+         $.post('/search_ui/', $(this).serialize(), function(data){
+            var j_obj = JSON.parse(data)
+            filter_and_show(j_obj.result)
+        });
+
+
+    }
+
+    function show_recommendations(recommendations){
+        $("#recommendations").html("You might also be interested in: ")
+        console.log(recommendations);
+        var i = 0;
+        for (var key in recommendations){
+            i++;
+            $("#recommendation"+i).html(key)
+            $("#recommendation"+i).data('key',{key:key})
+        }
+
+    }
+
+    function show_location_chart(location_trends){
+        var attr_list = Object.keys(location_trends);
+        var val_list = [];
+        console.log(location_trends);
+        console.log(attr_list);
+        for(var key in location_trends){
+            console.log(key);
+            val_list.push(location_trends[key]);
+        }
+
+        console.log(val_list);
+
+        $('#container').highcharts({
+            chart: {
+            type: 'column'
+            },
+            title: {
+            text: 'Location Trends'
+            },
+            xAxis: {
+            categories: Object.keys(location_trends)
+            },
+            yAxis: {
+            title: {
+            text: 'numbers'
+            }
+            },
+            series: [{
+            name: 'Number of Users  ',
+            data: val_list
+            },]
+        });
 
     }
 
@@ -43,6 +105,7 @@ $(function() {
     function clear_previous_link(){
         $("#link_generation").html("");
     }
+
     function create_links(link_count, result){
         clear_previous_link();
         if (link_count==0) return;
@@ -86,42 +149,14 @@ $(function() {
         }
     }
 
-    $('#container').highcharts({
-        chart: {
-        type: 'bar'
-        },
-        title: {
-        text: 'Monthly Sales'
-        },
-        xAxis: {
-        categories: ['Jan', 'Feb', 'Mar','Apr']
-        },
-        yAxis: {
-        title: {
-        text: 'numbers'
-        }
-        },
-        series: [{
-        name: 'John',
-        data: [1, 0, 4]
-        }, {
-        name: 'King',
-        data: [5, 7, 3]
-        }]
-    });
+
+
+
 
     $.getJSON("{% url 'bar' %}", function(data) {
             $('#container').highcharts(data);
         });
 
-
-    // AJAX for posting
-    function create_post() {
-        console.log("create post is working!") // sanity check
-        $("post-form").load({
-
-        })
-    };
 
     // This function gets cookie with a given name
     function getCookie(name) {
