@@ -34,6 +34,13 @@ def search_form(request):
             return Counter((doc[trend_query_parameter][0] for doc in results if trend_query_parameter in doc))
 
         result['location_trends'] = create_trends(result['docs'], 'user.time_zone')
+
+        count, page = 0, []
+        for tweet_data in result['docs']:
+            page.append(tweet_data)
+            if count==7:
+
+
         num_results = len(results)
         return HttpResponse(json.dumps({'result' : result}))
     else:
