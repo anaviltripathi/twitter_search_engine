@@ -23,14 +23,14 @@ $(function() {
             $("a[target=user"+i+"]").attr("href","display_tweet/?q="+result.docs[i].id);
             $("a[target=link_user"+i+"]").html("tweet_link: display_tweet/"+result.docs[i].id);
             $("a[target=link_user"+i+"]").attr("href","display_tweet/?q="+result.docs[i].id);
-            $("#search"+i+"_snippet").html(JSON.stringify(result.docs[i].text));
+            $("#search"+i+"_snippet").html(JSON.stringify(result.docs[i].text[0]));
 
         }
-        show_location_chart(result.location_trends);
+        show_trend_chart(result.location_trends, "#location_container", "Location Trends");
+        show_trend_chart(result.hashtag_trends, '#hashtag_container', "Hashtag Trends");
         show_recommendations(result.recommendations);
-
-
     }
+
 
     window.DoPost = function(content_id){
          console.log("Coming here");
@@ -56,27 +56,27 @@ $(function() {
 
     }
 
-    function show_location_chart(location_trends){
-        var attr_list = Object.keys(location_trends);
+    function show_trend_chart(trends, div, name){
+        var attr_list = Object.keys(trends);
         var val_list = [];
-        console.log(location_trends);
+        console.log(trends);
         console.log(attr_list);
-        for(var key in location_trends){
+        for(var key in trends){
             console.log(key);
-            val_list.push(location_trends[key]);
+            val_list.push(trends[key]);
         }
 
         console.log(val_list);
 
-        $('#container').highcharts({
+        $(div).highcharts({
             chart: {
             type: 'column'
             },
             title: {
-            text: 'Location Trends'
+            text: name
             },
             xAxis: {
-            categories: Object.keys(location_trends)
+            categories: Object.keys(trends)
             },
             yAxis: {
             title: {
@@ -84,7 +84,7 @@ $(function() {
             }
             },
             series: [{
-            name: 'Number of Users  ',
+            name: 'Number of Users ',
             data: val_list
             },]
         });

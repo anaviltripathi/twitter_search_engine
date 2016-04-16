@@ -1,5 +1,9 @@
+import string
+from collections import Counter
+
 from nltk.tokenize import TweetTokenizer
 from nltk.corpus import stopwords
+from nltk import bigrams
 
 stop_list = set(['a', "a's", 'able', 'about', 'above', 'according', 'accordingly', 'across', 'actually', 'after', 'afterwards', 'again', 'against', "ain't", 'all',
              'allow', 'allows', 'almost', 'alone', 'along', 'already', 'also', 'although', 'always', 'am', 'among', 'amongst', 'an', 'and', 'another', 'any',
@@ -34,18 +38,23 @@ stop_list = set(['a', "a's", 'able', 'about', 'above', 'according', 'accordingly
              'whose', 'why', 'will', 'willing', 'wish', 'with', 'within', 'without', "won't", 'wonder', 'would', 'would', "wouldn't", 'x', 'y', 'yes', 'yet', 'you', "you'd", "you'll", "you're",
              "you've", 'your', 'yours', 'yourself', 'yourselves', 'z', 'zero'])
 
-import string
-from collections import Counter
-
 def tokenize_all_tweets(tweets):
     tknzr = TweetTokenizer()
     punctutation = list(string.punctuation)
     stop = set(stopwords.words('english')) | set(punctutation)| set(['rt','via','...','…','https',"don't", "arent", "makes", 'want', "it's", 'like', 'know']) | stop_list
     count_all = Counter()
+
     for tweet in tweets:
-        tokens = [term.lower() for term in tknzr.tokenize(tweet) if term.lower() not in stop and len(term)>3]
-        count_all.update(tokens)
-    return dict(count_all.most_common(5))
+        tokens = [term.lower() for term in tknzr.tokenize(tweet) if term.lower() not in stop and len(term)>3 and not term.startswith(('@','http'))]
+        bigram_tokens = bigrams(tokens)
+        count_all.update(bigram_tokens)
 
+    common_bigram_dict = dict(count_all.most_common(5))
+    return ({key[0] + " " + key[1]: common_bigram_dict[key] for key in common_bigram_dict})
+    #return dict(count_all.most_common(5))
 
+def get_popular_hastags(hashtags):
+    return dict(map(lambda x: ("#"+x[0],x[1]), Counter(hashtags).most_common(10)))
 
+def create_trends(results, trend_query_parameter):
+    return dict(Counter((doc[trend_query_parameter][0] for doc in results if trend_query_parameter in doc)).most_common(10))

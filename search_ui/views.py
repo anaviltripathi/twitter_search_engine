@@ -5,69 +5,35 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 
-from search_ui.text_preprocessing import tokenize_all_tweets
+from search_ui.text_preprocessing import tokenize_all_tweets, create_trends, get_popular_hastags
 from .forms import SearchForm
-from highcharts.views import HighChartsBarView
-
-#import text_preprocessing
-
 
 
 def search_form(request):
     if request.method == 'POST':
-        #form = SearchForm(request.POST)
-        #if form.is_valid():
         print("YO babes working")
-        print(request)
-        print(request.POST.get('search_field'))
         query = request.POST.get('search_field')
-        template_set = True
-        var_list = (1,2,3,4,10)
+        print("You queried for: ",query)
         #Using solr
         solr = pysolr.Solr('http://localhost:8983/solr/gettingstarted/', timeout=10)
         results = solr.search(query, **{'wt':'json','rows':10000})
         result = results.__dict__
+        print(json.dumps(result['docs'][0],indent=4))
+        hashtags = [hashtag_list for tweet_data in result['docs']
+                    if 'entities.hashtags.text' in tweet_data
+                    for hashtag_list in tweet_data['entities.hashtags.text']]
+
         tweets = [tweet_data['text'][0] for tweet_data in result['docs']]
+
+        result['hashtag_trends'] = get_popular_hastags(hashtags)
         result['recommendations'] = tokenize_all_tweets(tweets)
-
-        def create_trends(results, trend_query_parameter):
-            return Counter((doc[trend_query_parameter][0] for doc in results if trend_query_parameter in doc))
-
         result['location_trends'] = create_trends(result['docs'], 'user.time_zone')
-        num_results = len(results)
         return HttpResponse(json.dumps({'result' : result}))
     else:
         print("post method shayad ")
         print(request)
         form = SearchForm()
     return render(request, 'search_ui/search_display.haml', {'form': form})
-
-
-def search(request):
-    error = False
-
-#     if 'q' in request.GET:
-#         print("YIPEEEE")
-#
-#
-#
-#     return render(request, 'search_ui/search_form.haml',
-#         {'error': error})
-
-# Create your views here.
-
-class BarView(HighChartsBarView):
-    categories = ['Orange', 'Bananas', 'Apples']
-
-    @property
-    def series(self):
-        result = []
-        for name in ('Joe', 'Jack', 'William', 'Averell'):
-            data = []
-            for x in range(len(self.categories)):
-                data.append(random.randint(0, 10))
-            result.append({'name': name, "data": data})
-        return result
 
 def display_tweet(request):
     print("request is coming to display tweet")
