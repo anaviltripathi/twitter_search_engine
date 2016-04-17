@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 
-from search_ui.text_preprocessing import tokenize_all_tweets, create_trends, get_popular_hastags
+from search_ui.text_preprocessing import give_recommendations, analyze_sentiments_for_top_locations, get_popular_hastags
 from .forms import SearchForm
 
 
@@ -18,19 +18,19 @@ def search_form(request):
         solr = pysolr.Solr('http://localhost:8983/solr/gettingstarted/', timeout=10)
         results = solr.search(query, **{'wt':'json','rows':10000})
         result = results.__dict__
-        print(json.dumps(result['docs'][0],indent=4))
         hashtags = [hashtag_list for tweet_data in result['docs']
                     if 'entities.hashtags.text' in tweet_data
                     for hashtag_list in tweet_data['entities.hashtags.text']]
 
-        tweets = [tweet_data['text'][0] for tweet_data in result['docs']]
+        tweets = [tweet_data['text'][0] for tweet_data in result['docs'] if 'text' in tweet_data]
 
         result['hashtag_trends'] = get_popular_hastags(hashtags)
-        result['recommendations'] = tokenize_all_tweets(tweets)
-        result['location_trends'] = create_trends(result['docs'], 'user.time_zone')
+        result['recommendations'] = give_recommendations(tweets)
+        result['location_trends'] = analyze_sentiments_for_top_locations(result['docs'], 'user.time_zone')
+
         return HttpResponse(json.dumps({'result' : result}))
     else:
-        print("post method shayad ")
+        print("GET request bro")
         print(request)
         form = SearchForm()
     return render(request, 'search_ui/search_display.haml', {'form': form})
@@ -51,6 +51,5 @@ def display_tweet(request):
             v=str(v)
             for c in bad_chars: v = v.replace(c, "")
             new_tweet[newkey]=v
-
         return render(request, 'search_ui/display.haml', {'result':new_tweet})
 
