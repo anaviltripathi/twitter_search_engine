@@ -150,6 +150,22 @@ $(function() {
         });
     }
 
+    function show_next_search(result){
+        //$("#all_result").html(JSON.stringify(result))
+        clear_previous_search();
+        for (var i=0; i<result.docs.length && i<8;i++) {
+            $("a[target=user"+i+"]").html("Tweeted by:"+result.docs[i]["user.name"]);
+            $("a[target=user"+i+"]").data("tweet_id",{id:result.docs[i].id});
+            $("a[target=user"+i+"]").attr("href","display_tweet/?q="+result.docs[i].id);
+            $("a[target=link_user"+i+"]").html("tweet_link: display_tweet/"+result.docs[i].id);
+            $("a[target=link_user"+i+"]").attr("href","display_tweet/?q="+result.docs[i].id);
+            $("#search"+i+"_snippet").html(JSON.stringify(result.docs[i].text[0]));
+
+        }
+
+    }
+
+
     window.DoPost = function(content_id){
 //         console.log("Coming here");
          var reco=$(content_id).text()
@@ -163,7 +179,6 @@ $(function() {
 
     function show_recommendations(recommendations){
         $("#recommendations").html("You might also be interested in: ")
-//        console.log(recommendations);
         var i = 0;
         for (var key in recommendations){
             i++;
@@ -176,6 +191,7 @@ $(function() {
     function show_trend_chart(trends, div, name){
         var attr_list = Object.keys(trends);
         var val_list = [];
+
 //        console.log(trends);
 //        console.log(attr_list);
         for(var key in trends){
@@ -184,6 +200,7 @@ $(function() {
         }
 
 //        console.log(val_list);
+
 
         $(div).highcharts({
             chart: {
@@ -223,6 +240,17 @@ $(function() {
         $("#link_generation").html("");
     }
 
+
+
+    window.do_next_search = function(content_id) {
+
+        var page = $(content_id).data('pages');
+        var href = $(content_id).attr('href');
+        console.log(href);
+        console.log(page);
+        show_next_search(page);
+    }
+
     function create_links(link_count, result){
         clear_previous_link();
         if (link_count==0) return;
@@ -232,17 +260,23 @@ $(function() {
             var mydiv = document.getElementById("link_generation");
             var aTag = document.createElement('a');
             aTag.id="link_data"+i;
-            aTag.setAttribute('href',"http://google.com");
+            aTag.setAttribute('onclick',"do_next_search('#" + aTag.id +"');");
+            aTag.setAttribute('href',"#");
+
             aTag.setAttribute("class", "next_search");
+
             aTag.innerHTML = (i+1) + " ";
             mydiv.appendChild(aTag);
         }
 
 
         for(var i=0; i<link_count;i++){
-            $("link_data"+i).data('result',{res:result})
+            //console.log(result.pages[i]);
+            $("#link_data"+i).data('pages', {docs: result.pages[i]})
         }
     }
+
+
 
     $("#search_form_id").bind("mouseover",function(){
             $(".search_form").css("background-color","blue");
@@ -310,7 +344,7 @@ $(function() {
 
     $('.third_page').click(function() {
             var tweet_id=$(this).data('tweet_id');
-            console.log(tweet_id);
+            //console.log(tweet_id);
             var url="display_tweet/?q="+tweet_id['id'];
            $("a[target='" + $(this).attr("target")+"']").attr("href",url);
     });

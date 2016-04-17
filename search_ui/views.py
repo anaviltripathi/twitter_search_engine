@@ -18,6 +18,7 @@ def search_form(request):
         solr = pysolr.Solr('http://localhost:8983/solr/gettingstarted/', timeout=10)
         results = solr.search(query, **{'wt':'json','rows':10000})
         result = results.__dict__
+
         hashtags = [hashtag_list for tweet_data in result['docs']
                     if 'entities.hashtags.text' in tweet_data
                     for hashtag_list in tweet_data['entities.hashtags.text']]
@@ -27,6 +28,20 @@ def search_form(request):
         result['hashtag_trends'] = get_popular_hastags(hashtags)
         result['recommendations'] = give_recommendations(tweets)
         result['location_trends'] = analyze_sentiments_for_top_locations(result['docs'], 'user.time_zone')
+
+        count, page = 0, []
+        pages = []
+        for tweet_data in result['docs']:
+            page.append(tweet_data)
+            # if count == 0: print(tweet_data)
+            count += 1
+            if count == 8:
+                count = 0
+                pages.append(page)
+                page = []
+        pages.append(page)
+        result['pages'] = pages
+
 
         return HttpResponse(json.dumps({'result' : result}))
     else:
@@ -39,7 +54,7 @@ def display_tweet(request):
     print("request is coming to display tweet")
     if request.method == 'GET':
         id = request.GET.get('q')
-        print(id)
+        #print(id)
         solr = pysolr.Solr('http://localhost:8983/solr/gettingstarted/', timeout=10)
         results = solr.search("id:"+id, **{'wt':'json'})
         results=results.__dict__
