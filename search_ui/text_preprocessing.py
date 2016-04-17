@@ -1,9 +1,9 @@
-import string
-from collections import Counter
+import string, pickle
+from collections import Counter, defaultdict
 
 from nltk.tokenize import TweetTokenizer
 from nltk.corpus import stopwords
-from nltk import bigrams
+#from nltk import bigrams
 
 stop_list = set(['a', "a's", 'able', 'about', 'above', 'according', 'accordingly', 'across', 'actually', 'after', 'afterwards', 'again', 'against', "ain't", 'all',
              'allow', 'allows', 'almost', 'alone', 'along', 'already', 'also', 'although', 'always', 'am', 'among', 'amongst', 'an', 'and', 'another', 'any',
@@ -38,23 +38,56 @@ stop_list = set(['a', "a's", 'able', 'about', 'above', 'according', 'accordingly
              'whose', 'why', 'will', 'willing', 'wish', 'with', 'within', 'without', "won't", 'wonder', 'would', 'would', "wouldn't", 'x', 'y', 'yes', 'yet', 'you', "you'd", "you'll", "you're",
              "you've", 'your', 'yours', 'yourself', 'yourselves', 'z', 'zero'])
 
-def tokenize_all_tweets(tweets):
-    tknzr = TweetTokenizer()
-    punctutation = list(string.punctuation)
-    stop = set(stopwords.words('english')) | set(punctutation)| set(['rt','via','...','…','https',"don't", "arent", "makes", 'want', "it's", 'like', 'know']) | stop_list
-    count_all = Counter()
+punctuation = list(string.punctuation)
+stop = set(stopwords.words('english')) | set(punctuation)| set(['rt','via','...','…','https',"don't", "arent", "makes", 'want', "it's", 'like', 'know']) | stop_list
 
+def give_recommendations(tweets):
+    tknzr = TweetTokenizer()
+    count_all = Counter()
     for tweet in tweets:
         tokens = [term.lower() for term in tknzr.tokenize(tweet) if term.lower() not in stop and len(term)>3 and not term.startswith(('@','http'))]
-        bigram_tokens = bigrams(tokens)
-        count_all.update(bigram_tokens)
+        #bigram_tokens = bigrams(tokens)
+        #count_all.update(bigram_tokens)
+        count_all.update(tokens)
 
-    common_bigram_dict = dict(count_all.most_common(5))
-    return ({key[0] + " " + key[1]: common_bigram_dict[key] for key in common_bigram_dict})
-    #return dict(count_all.most_common(5))
+    #common_bigram_dict = dict(count_all.most_common(5))
+    #return ({key[0] + " " + key[1]: common_bigram_dict[key] for key in common_bigram_dict})
+    return dict(count_all.most_common(5))
 
 def get_popular_hastags(hashtags):
     return dict(map(lambda x: ("#"+x[0],x[1]), Counter(hashtags).most_common(10)))
 
-def create_trends(results, trend_query_parameter):
-    return dict(Counter((doc[trend_query_parameter][0] for doc in results if trend_query_parameter in doc)).most_common(10))
+def get_top_locations(results, trend_query_parameter):
+    #return dict(Counter((doc[trend_query_parameter][0] for doc in results if trend_query_parameter in doc)).most_common(10))
+    return dict(Counter((doc[trend_query_parameter][0] for doc in results if trend_query_parameter in doc)).most_common(10)).keys()
+
+
+def analyze_sentiments_for_top_locations(results, trend_query_parameter):
+    with open('my_classifier.pickle','rb') as f:
+        classifier = pickle.load(f)
+
+    locations = get_top_locations(results, trend_query_parameter)
+    sentiment_map = defaultdict(Counter)
+
+    for doc in results:
+        if trend_query_parameter in doc and 'text' in doc and doc[trend_query_parameter][0] in locations:
+
+            tweet = doc['text'][0]
+            tweet_feats = word_feats(tweet)
+            tweet_sentiment = [classifier.classify(tweet_feats)]
+            sentiment_map[doc[trend_query_parameter][0]].update(tweet_sentiment)
+
+    #print(sentiment_map)
+    #for location in sentiment_map:
+        #print(senti)
+    extract_vals = lambda param: [sentiment_map[location][param] for location in sentiment_map]
+    result = {'locs': list(locations), 'pos': extract_vals('pos') , 'neg': extract_vals('neg')}
+    #print(len(result['pos']), len(locations), len(result['neg']))
+    return result
+
+
+
+
+def word_feats(tweet):
+    tknzr = TweetTokenizer()
+    return dict([(term.lower(), True) for term in tknzr.tokenize(tweet) if term.lower() not in stop and len(term)>3 and not term.startswith(('@','http'))])

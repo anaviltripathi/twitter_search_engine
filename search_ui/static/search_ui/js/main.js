@@ -26,9 +26,128 @@ $(function() {
             $("#search"+i+"_snippet").html(JSON.stringify(result.docs[i].text[0]));
 
         }
-        show_trend_chart(result.location_trends, "#location_container", "Location Trends");
+
         show_trend_chart(result.hashtag_trends, '#hashtag_container', "Hashtag Trends");
         show_recommendations(result.recommendations);
+        show_sentiment_trend_chart(result.location_trends, "#location_container", "Location Trends", result.docs);
+    }
+
+    function filter_docs(docs, filter_param, param_value){
+//        console.log(docs)
+        var filtered_docs = [];
+        for(var doc in docs){
+//            console.log(docs[doc])
+//            console.log(Object.keys(docs[doc]))
+            if(filter_param in docs[doc]  && docs[doc][filter_param] == param_value)
+            {
+                console.log("Waah mere sher")
+                filtered_docs.push(docs[doc]);
+            }
+        }
+
+        console.log(filtered_docs);
+
+        $('#search_count').html("Total results found are " + JSON.stringify(filtered_docs.length))
+        link_count=filtered_docs.length/7 -1;
+        clear_previous_search();
+//        create_links(link_count, result)
+        for (var i=0; i<filtered_docs.length && i<8;i++) {
+            console.log(filtered_docs[i])
+            $("a[target=user"+i+"]").html("Tweeted by:"+filtered_docs[i]["user.name"]);
+            $("a[target=user"+i+"]").data("tweet_id",{id:filtered_docs[i].id});
+            $("a[target=user"+i+"]").attr("href","display_tweet/?q="+filtered_docs[i].id);
+            $("a[target=link_user"+i+"]").html("tweet_link: display_tweet/"+filtered_docs[i].id);
+            $("a[target=link_user"+i+"]").attr("href","display_tweet/?q="+filtered_docs[i].id);
+            $("#search"+i+"_snippet").html(JSON.stringify(filtered_docs[i].text[0]));
+
+        }
+
+//        return(filtered_docs)
+
+    }
+
+    function show_sentiment_trend_chart(trends, div, chart_title, docs){
+        console.log("Showing Sentiments")
+        var attr_list = Object.keys(trends);
+        locations = trends['locs']
+        pos = trends['pos']
+        neg = trends['neg']
+//        console.log(trends)
+//        console.log(locations)
+//        console.log(pos)
+//        console.log(neg)
+
+
+        $(div).highcharts({
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: chart_title
+            },
+            xAxis: {
+                categories: locations
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Numbers'
+                },
+                stackLabels: {
+                    enabled: true,
+                    style: {
+                        fontWeight: 'bold',
+                        color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                    }
+                }
+            },
+            legend: {
+                align: 'right',
+                x: -30,
+                verticalAlign: 'top',
+                y: 25,
+                floating: true,
+                backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+                borderColor: '#CCC',
+                borderWidth: 1,
+                shadow: false
+            },
+            tooltip: {
+                headerFormat: '<b>{point.x}</b><br/>',
+                pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+            },
+            plotOptions: {
+                column: {
+                    stacking: 'normal',
+                    dataLabels: {
+                        enabled: true,
+                        color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
+                        style: {
+                            textShadow: '0 0 3px black'
+                        }
+                    }
+                },
+
+                series: {
+                    cursor: 'pointer',
+                    point: {
+                        events: {
+                            click: function () {
+                                filter_docs(docs, 'user.time_zone', this.category)
+                            }
+                        }
+                    }
+                }
+            },
+
+            series: [{
+                name: 'Positive',
+                data: pos
+            }, {
+                name: 'Negative',
+                data: neg
+            }]
+        });
     }
 
     function show_next_search(result){
@@ -48,10 +167,9 @@ $(function() {
 
 
     window.DoPost = function(content_id){
-         console.log("Coming here");
+//         console.log("Coming here");
          var reco=$(content_id).text()
-         $.post("", { search_field: reco} );
-         $.post('/search_ui/', $(this).serialize(), function(data){
+         $.post('/search_ui/',{search_field: reco}, function(data){
             var j_obj = JSON.parse(data)
             filter_and_show(j_obj.result)
         });
@@ -61,7 +179,6 @@ $(function() {
 
     function show_recommendations(recommendations){
         $("#recommendations").html("You might also be interested in: ")
-        //console.log(recommendations);
         var i = 0;
         for (var key in recommendations){
             i++;
@@ -74,14 +191,16 @@ $(function() {
     function show_trend_chart(trends, div, name){
         var attr_list = Object.keys(trends);
         var val_list = [];
-        //console.log(trends);
-        //console.log(attr_list);
+
+//        console.log(trends);
+//        console.log(attr_list);
         for(var key in trends){
-            //console.log(key);
+//            console.log(key);
             val_list.push(trends[key]);
         }
 
-        //console.log(val_list);
+//        console.log(val_list);
+
 
         $(div).highcharts({
             chart: {
@@ -168,27 +287,9 @@ $(function() {
     });
 
 
-    function change_image() {
-        console.log("Working")
-        var image = document.getElementById('myImage');
-        if (image.src.match("2")) {
-            image.src = "pic1.png"
-            //image.src = "static/search_ui/images/pic1.png"
-        } else {
-
-            image.src = "pic2.png"
-            //image.src = "static/search_ui/images/pic2.png"
-        }
-    }
-
-
-
-
-
-    $.getJSON("{% url 'bar' %}", function(data) {
-            $('#container').highcharts(data);
-        });
-
+//    $.getJSON("{% url 'bar' %}", function(data) {
+//            $('#container').highcharts(data);
+//        });
 
     // This function gets cookie with a given name
     function getCookie(name) {
