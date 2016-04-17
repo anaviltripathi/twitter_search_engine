@@ -23,7 +23,7 @@ def search_form(request):
                     if 'entities.hashtags.text' in tweet_data
                     for hashtag_list in tweet_data['entities.hashtags.text']]
 
-        tweets = [tweet_data['text'][0] for tweet_data in result['docs']]
+        tweets = [tweet_data['text'][0] for tweet_data in result['docs'] if 'text' in tweet_data]
 
         result['hashtag_trends'] = get_popular_hastags(hashtags)
         result['recommendations'] = tokenize_all_tweets(tweets)
