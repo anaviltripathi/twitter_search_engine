@@ -1,5 +1,7 @@
 <script src='http://code.jquery.com/jquery-1.11.0.min.js'></script>
 <script type='text/javascript' src='/static/search_ui/js/highcharts/highcharts.js'></script>
+<script type='text/javascript' src='/static/search_ui/js/simple-bootstrap-paginator.js'></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 <script src='/static/search_ui/js/main.js'></script>
 <html class="google-js" lang="en">
    <!--<script type="text/javascript" src="/static/search_ui/js/googlesearch.js">window["_gaUserPrefs"] = { ioo : function() { return true; } }</script>-->
@@ -7,6 +9,7 @@
       <meta charset="utf-8">
       <meta content="initial-scale=1, minimum-scale=1, width=device-width" name="viewport">
       <title>Search</title>
+      <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
       <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&lang=en" rel="stylesheet">
       <link href="https://www.google.com/work/search/css/search.min.css" rel="stylesheet">
       <meta content="NOODP,NOYDIR" name="robots">
@@ -87,6 +90,17 @@
       <div id="link_generation" class="next_search result">
 
       </div>
+      <div class="container result">
+
+        <div class="row">
+          <div class="col-xs-12">
+            <div id="pagination" class="text-center"></div>
+          </div>
+        </div>
+
+      </div>
+
+
       <span tabindex="0" style="display: none; position: absolute;"></span>
       <!--<script src="https://www.google.com/js/maia.js"></script>-->
       <!--<script>(function() {new enterprise.search.GlobalSiteSearch();})();</script>-->

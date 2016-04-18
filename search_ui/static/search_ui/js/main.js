@@ -1,4 +1,23 @@
 $(function() {
+    console.log( "ready!" );
+    var pag = $('#pagination').simplePaginator({
+      totalPages: 6,
+      pageChange: function(page) {
+        console.log("pagination is working" + page);
+        $('#content_pagination').empty().text('Page is ' + page);
+        var res = $('#link_generation').data('res');
+        if (res == null) {
+            return;
+        }
+        console.log(res['val']);
+        var result = res['val']
+        var pages = {docs : result.pages[page]};
+        show_next_search(pages);
+      }
+    });
+
+    pag.simplePaginator('hide');
+
     $('#post-form').submit(function(event){
         event.preventDefault();
         console.log("form submitted!")
@@ -10,11 +29,23 @@ $(function() {
         });
     });
 
+    function create_links(link_count, result){
+
+        clear_previous_link();
+        console.log("total link count are ", link_count);
+        if (link_count < 0) {
+            pag.simplePaginator('hide');
+            return;
+        }
+        $('#link_generation').data('res', {val: result});
+        pag.simplePaginator('setTotalPages', link_count);
+        console.log("this is explicit call");
+    }
 
     function filter_and_show(result){
         //$("#all_result").html(JSON.stringify(result))
         $('#search_count').html("Total results found are " + JSON.stringify(result.docs.length))
-        link_count=result.docs.length/7 -1;
+        var link_count=Math.round((result.docs.length/7 -3));
         clear_previous_search();
         create_links(link_count, result)
         for (var i=0; i<result.docs.length && i<8;i++) {
@@ -48,9 +79,9 @@ $(function() {
         console.log(filtered_docs);
 
         $('#search_count').html("Total results found are " + JSON.stringify(filtered_docs.length))
-        link_count=filtered_docs.length/7 -1;
+        var link_count=Math.round(filtered_docs.length/7 -3);
         clear_previous_search();
-//        create_links(link_count, result)
+
         for (var i=0; i<filtered_docs.length && i<8;i++) {
             console.log(filtered_docs[i])
             $("a[target=user"+i+"]").html("Tweeted by:"+filtered_docs[i]["user.name"]);
@@ -62,8 +93,6 @@ $(function() {
 
         }
 
-//        return(filtered_docs)
-
     }
 
     function show_sentiment_trend_chart(trends, div, chart_title, docs){
@@ -72,11 +101,6 @@ $(function() {
         locations = trends['locs']
         pos = trends['pos']
         neg = trends['neg']
-//        console.log(trends)
-//        console.log(locations)
-//        console.log(pos)
-//        console.log(neg)
-
 
         $(div).highcharts({
             chart: {
@@ -150,20 +174,7 @@ $(function() {
         });
     }
 
-    function show_next_search(result){
-        //$("#all_result").html(JSON.stringify(result))
-        clear_previous_search();
-        for (var i=0; i<result.docs.length && i<8;i++) {
-            $("a[target=user"+i+"]").html("Tweeted by:"+result.docs[i]["user.name"]);
-            $("a[target=user"+i+"]").data("tweet_id",{id:result.docs[i].id});
-            $("a[target=user"+i+"]").attr("href","display_tweet/?q="+result.docs[i].id);
-            $("a[target=link_user"+i+"]").html("tweet_link: display_tweet/"+result.docs[i].id);
-            $("a[target=link_user"+i+"]").attr("href","display_tweet/?q="+result.docs[i].id);
-            $("#search"+i+"_snippet").html(JSON.stringify(result.docs[i].text[0]));
 
-        }
-
-    }
 
 
     window.DoPost = function(content_id){
@@ -236,11 +247,12 @@ $(function() {
         }
     }
 
+
+
     function clear_previous_link(){
+
         $("#link_generation").html("");
     }
-
-
 
     window.do_next_search = function(content_id) {
 
@@ -251,45 +263,44 @@ $(function() {
         show_next_search(page);
     }
 
-    function create_links(link_count, result){
-        clear_previous_link();
-        if (link_count==0) return;
-        console.log("i am trying to create links");
-        $('#link_generation').append("<span><b>Next search: </b></span>");
-        for(var i=0; i<link_count;i++){
-            var mydiv = document.getElementById("link_generation");
-            var aTag = document.createElement('a');
-            aTag.id="link_data"+i;
-            aTag.setAttribute('onclick',"do_next_search('#" + aTag.id +"');");
-            aTag.setAttribute('href',"#");
+    function show_next_search(result){
+        //$("#all_result").html(JSON.stringify(result))
+        clear_previous_search();
+        for (var i=0; i<result.docs.length && i<8;i++) {
+            $("a[target=user"+i+"]").html("Tweeted by:"+result.docs[i]["user.name"]);
+            $("a[target=user"+i+"]").data("tweet_id",{id:result.docs[i].id});
+            $("a[target=user"+i+"]").attr("href","display_tweet/?q="+result.docs[i].id);
+            $("a[target=link_user"+i+"]").html("tweet_link: display_tweet/"+result.docs[i].id);
+            $("a[target=link_user"+i+"]").attr("href","display_tweet/?q="+result.docs[i].id);
+            $("#search"+i+"_snippet").html(JSON.stringify(result.docs[i].text[0]));
 
-            aTag.setAttribute("class", "next_search");
-
-            aTag.innerHTML = (i+1) + " ";
-            mydiv.appendChild(aTag);
         }
 
-
-        for(var i=0; i<link_count;i++){
-            //console.log(result.pages[i]);
-            $("#link_data"+i).data('pages', {docs: result.pages[i]})
-        }
     }
 
 
 
-    $("#search_form_id").bind("mouseover",function(){
-            $(".search_form").css("background-color","blue");
-    });
-
-    $("#search_form_id").bind("mouseout",function(){
-            $(".search_form").css("background-color","yellow");
-    });
 
 
-//    $.getJSON("{% url 'bar' %}", function(data) {
-//            $('#container').highcharts(data);
-//        });
+
+    $('#changeTotalPages').click(function() {
+      pag.simplePaginator('setTotalPages', 10);
+    })
+
+    $('#changePage').click(function() {
+      pag.simplePaginator('changePage', 3);
+      var res = $('#link_generation').data('res');
+        console.log(res['val']);
+        var result = res['val']
+        var pages = {docs : result.pages[3]};
+        show_next_search(pages);
+
+    })
+
+    $('#hide').click(function() {
+      pag.simplePaginator('hide');
+    })
+
 
     // This function gets cookie with a given name
     function getCookie(name) {
