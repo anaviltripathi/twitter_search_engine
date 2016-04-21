@@ -37,9 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'highcharts',
-    'djangobower',
-    'jquery',
+#    'highcharts',
+#    'djangobower',
+#    'jquery',
     'search_ui',
 ]
 
