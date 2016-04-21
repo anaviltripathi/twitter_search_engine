@@ -62,6 +62,7 @@ def get_top_locations(results, trend_query_parameter):
     return dict(Counter((doc[trend_query_parameter][0] for doc in results if trend_query_parameter in doc)).most_common(10)).keys()
 
 
+
 def analyze_sentiments_for_top_locations(results, trend_query_parameter):
     with open('my_classifier.pickle','rb') as f:
         classifier = pickle.load(f)

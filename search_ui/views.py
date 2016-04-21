@@ -41,8 +41,6 @@ def search_form(request):
                 page = []
         pages.append(page)
         result['pages'] = pages
-
-
         return HttpResponse(json.dumps({'result' : result}))
     else:
         print("GET request bro")

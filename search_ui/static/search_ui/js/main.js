@@ -57,8 +57,8 @@ $(function() {
             $("#search"+i+"_snippet").html(JSON.stringify(result.docs[i].text[0]));
 
         }
-
-        show_trend_chart(result.hashtag_trends, '#hashtag_container', "Hashtag Trends");
+        //console.log(result)
+        show_trend_chart(result.hashtag_trends, '#hashtag_container', "Hashtag Trends",result.docs);
         show_recommendations(result.recommendations);
         show_sentiment_trend_chart(result.location_trends, "#location_container", "Location Trends", result.docs);
     }
@@ -71,19 +71,19 @@ $(function() {
 //            console.log(Object.keys(docs[doc]))
             if(filter_param in docs[doc]  && docs[doc][filter_param] == param_value)
             {
-                console.log("Waah mere sher")
+                //console.log("Waah mere sher")
                 filtered_docs.push(docs[doc]);
             }
         }
 
-        console.log(filtered_docs);
+        //console.log(filtered_docs);
 
         $('#search_count').html("Total results found are " + JSON.stringify(filtered_docs.length))
         var link_count=Math.round(filtered_docs.length/7 -3);
         clear_previous_search();
 
         for (var i=0; i<filtered_docs.length && i<8;i++) {
-            console.log(filtered_docs[i])
+           // console.log(filtered_docs[i])
             $("a[target=user"+i+"]").html("Tweeted by:"+filtered_docs[i]["user.name"]);
             $("a[target=user"+i+"]").data("tweet_id",{id:filtered_docs[i].id});
             $("a[target=user"+i+"]").attr("href","display_tweet/?q="+filtered_docs[i].id);
@@ -93,6 +93,34 @@ $(function() {
 
         }
 
+    }
+    function filter_docs_by_hashtag(docs,hashtag_param, hashtag_value){
+        var filtered_docs = [];
+        hashtag_value = hashtag_value.slice(1);
+        for(var doc in docs){
+            if(hashtag_param in docs[doc] && docs[doc][hashtag_param].indexOf(hashtag_value)>-1){
+                 filtered_docs.push(docs[doc]);
+               /* for(var j=0;j<docs[doc][hashtag_param].length;j++){
+                   // if(docs[doc][hashtag_param][j].toLowerCase() === (hashtag_value.toLowerCase()))
+
+                    //console.log();
+                } */
+            }
+        }
+        $('#search_count').html("Total results found are " + JSON.stringify(filtered_docs.length))
+        var link_count=Math.round(filtered_docs.length/7 -3);
+        clear_previous_search();
+
+        for (var i=0; i<filtered_docs.length && i<8;i++) {
+           // console.log(filtered_docs[i])
+            $("a[target=user"+i+"]").html("Tweeted by:"+filtered_docs[i]["user.name"]);
+            $("a[target=user"+i+"]").data("tweet_id",{id:filtered_docs[i].id});
+            $("a[target=user"+i+"]").attr("href","display_tweet/?q="+filtered_docs[i].id);
+            $("a[target=link_user"+i+"]").html("tweet_link: display_tweet/"+filtered_docs[i].id);
+            $("a[target=link_user"+i+"]").attr("href","display_tweet/?q="+filtered_docs[i].id);
+            $("#search"+i+"_snippet").html(JSON.stringify(filtered_docs[i].text[0]));
+
+        }
     }
 
     function show_sentiment_trend_chart(trends, div, chart_title, docs){
@@ -199,7 +227,7 @@ $(function() {
 
     }
 
-    function show_trend_chart(trends, div, name){
+    function show_trend_chart(trends, div, name,docs){
         var attr_list = Object.keys(trends);
         var val_list = [];
 
@@ -225,8 +253,21 @@ $(function() {
             },
             yAxis: {
             title: {
-            text: 'numbers'
+            text: 'Numbers'
             }
+            },
+            plotOptions: {
+                series: {
+                    cursor: 'pointer',
+                    point: {
+                        events: {
+                            click: function () {
+                              //  alert('Category: ' + this.category + ', value: ' + this.y);
+                                filter_docs_by_hashtag(docs, "entities.hashtags.text", this.category)
+                            }
+                        }
+                    }
+                }
             },
             series: [{
             name: 'Number of Users ',
