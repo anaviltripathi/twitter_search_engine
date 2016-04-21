@@ -1,5 +1,56 @@
 @import url(http://fonts.googleapis.com/css?family=Cabin:400);
 
+header {
+    background: url(images/search_twitter_edit.png) no-repeat center bottom;
+    background-size: 1000px 300px;
+    margin-bottom: -40px;
+    min-height: 320px;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+header:after {
+    bottom: 0px;
+    box-shadow: 0px -0px 10px 10px rgb(255, 255, 255);
+    content: '';
+    height: 0px;
+    left: 0px;
+    width: 100%;
+    position: absolute;
+}
+header .col-xs-12 {
+    height: 320px;
+}
+
+header .alert-info {
+    background-color: rgba(156, 39, 176, 0.7);
+}
+
+.contentFake{
+	background-color: #333;
+	height: 770px;
+}
+.footer {
+  position: relative;
+  right: 0px;
+  bottom: 0;
+  width: 90%;
+  left: 50px;
+  padding: 1rem;
+  background-color: #efefef;
+  text-align: left;
+}
+
+
+.footerContent{
+	width: 80%;
+	margin: auto;
+	padding: 5px;
+	text-align: center;
+	border-left: 1px solid #fff;
+	border-right: 1px solid #fff;
+}
+
 .webdesigntuts-workshop {
 	background: #151515;
 	height: 100%;
